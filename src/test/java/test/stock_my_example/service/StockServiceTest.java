@@ -9,6 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import test.stock_my_example.domain.Stock;
 import test.stock_my_example.repository.StockRepository;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -43,6 +47,32 @@ class StockServiceTest {
         // then
         Stock stock = stockRepository.findById(id).orElseThrow();
         assertThat(stock.getQuantity()).isEqualTo(99L);
+    }
+
+    @DisplayName("동시에 100개의 요청")
+    @Test
+    void decrease100() throws Exception {
+        // given
+        int threadCount = 100;
+
+        // when
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.submit(() -> {
+                    try {
+                        stockService.decrease(1L, 1L);
+                    } finally {
+                        latch.countDown();
+                    }
+            });
+        }
+        latch.await();
+
+        // then
+        Stock stock = stockRepository.findById(1L).orElseThrow();
+        assertThat(stock.getQuantity()).isEqualTo(0);
     }
 
 
