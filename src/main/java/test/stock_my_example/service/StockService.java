@@ -14,7 +14,7 @@ public class StockService {
     }
 
     @Transactional
-    public void decrease(Long id, Long quantity) {
+    public synchronized void decrease(Long id, Long quantity) {
         // 재고 조회
         // 재고를 감소시킨뒤
         // 갱신된 값을 저장
