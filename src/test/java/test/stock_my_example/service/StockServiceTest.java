@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StockServiceTest {
 
     @Autowired
-    private StockService stockService;
+    private PessimisticLockStockService stockService;
 
     @Autowired
     private StockRepository stockRepository;
@@ -34,6 +34,7 @@ class StockServiceTest {
         stockRepository.deleteAll();
     }
 
+    // 이것을 할번에 실행하면... 왜 실패하지?
     @DisplayName("재고 감소")
     @Test
     void decrease() throws Exception {
@@ -74,10 +75,4 @@ class StockServiceTest {
         Stock stock = stockRepository.findById(1L).orElseThrow();
         assertThat(stock.getQuantity()).isEqualTo(0);
     }
-
-
-
-
-
-
 }
